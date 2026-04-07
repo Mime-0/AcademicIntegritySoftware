@@ -1,6 +1,8 @@
-
 public class Main {
     public static void main(String[] args) {
-        new LoginScreen();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            AppFrame app = new AppFrame();
+            app.setVisible(true);
+        });
     }
 }

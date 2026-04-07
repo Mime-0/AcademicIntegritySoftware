@@ -1,96 +1,90 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
-public class LoginScreen extends JFrame {
+public class LoginScreen extends JPanel {
 
-    public LoginScreen() {
-        setTitle("Academic Integrity Tracker - Login");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(4, 1));
+    private final AppFrame app;
 
-        JLabel title = new JLabel("Select Login Type", JLabel.CENTER);
+    private final JComboBox<String> roleBox;
+    private final JTextField idField;
+    private final JPasswordField passwordField;
+    private final JTextField otpField;
 
-        JButton studentBtn = new JButton("Student Login");
-        JButton instructorBtn = new JButton("Instructor Login");
-        JButton adminBtn = new JButton("Admin Login");
+    public LoginScreen(AppFrame app) {
+        this.app = app;
 
-        studentBtn.addActionListener(e -> studentLogin());
+        setLayout(new BorderLayout());
+        setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        instructorBtn.addActionListener(e -> instructorLogin());
+        JLabel title = new JLabel("Academic Integrity Tracker - Login", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+        add(title, BorderLayout.NORTH);
 
-        adminBtn.addActionListener(e -> adminLogin());
+        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
 
-        add(title);
-        add(studentBtn);
-        add(instructorBtn);
-        add(adminBtn);
+        roleBox = new JComboBox<>(new String[] { "Student", "Instructor", "Administrator" });
+        idField = new JTextField();
+        passwordField = new JPasswordField();
+        otpField = new JTextField();
 
-        setVisible(true);
-    }
-    public void studentLogin() {
-        JDialog loginPopup = new JDialog(this, "Student Login", true);
-        JPanel loginPanel = new JPanel(new GridLayout(0, 2, 5, 5));
-        loginPopup.setSize(300,150);
-        JButton back = new JButton("Back to Main");
-        JButton submit = new JButton("Submit");
-        JTextField studentID = new JTextField();
-        JLabel student = new JLabel("Student ID:");
-        JTextField studentPass = new JTextField();
-        JLabel pass = new JLabel ("Password:");
-        back.addActionListener(e -> loginPopup.dispose());
-        submit.addActionListener(e-> {dispose(); new StudentDashboard();});
-        loginPanel.add(student);
-        loginPanel.add(pass);
-        loginPanel.add(studentID);
-        loginPanel.add(studentPass);
-        loginPanel.add(submit);
-        loginPanel.add(back);
-        loginPopup.add(loginPanel);
-        loginPopup.setVisible(true);
-    }
-    
-    public void instructorLogin() {
-        JDialog loginPopup = new JDialog(this, "Instructor Login", true);
-        JPanel loginPanel = new JPanel(new GridLayout(0, 2, 5, 5));
-        loginPopup.setSize(300,150);
-        JButton back = new JButton("Back to Main");
-        JButton submit = new JButton("Submit");
-        JTextField instructorID = new JTextField();
-        JLabel instructor = new JLabel("Instructor ID:");
-        JTextField instructorPass = new JTextField();
-        JLabel pass = new JLabel ("Password:");
-        back.addActionListener(e -> loginPopup.dispose());
-        submit.addActionListener(e-> {dispose(); new InstructorDashboard();});
-        loginPanel.add(instructor);
-        loginPanel.add(pass);
-        loginPanel.add(instructorID);
-        loginPanel.add(instructorPass);
-        loginPanel.add(submit);
-        loginPanel.add(back);
-        loginPopup.add(loginPanel);
-        loginPopup.setVisible(true);
+        form.add(new JLabel("Role:"));
+        form.add(roleBox);
+        form.add(new JLabel("User ID:"));
+        form.add(idField);
+        form.add(new JLabel("Password:"));
+        form.add(passwordField);
+        form.add(new JLabel("OTP (Admin only):"));
+        form.add(otpField);
+
+        JButton loginButton = new JButton("Login");
+        JButton clearButton = new JButton("Clear");
+        form.add(loginButton);
+        form.add(clearButton);
+
+        add(form, BorderLayout.CENTER);
+
+        roleBox.addActionListener(e -> updateOtpVisibility());
+        loginButton.addActionListener(e -> attemptLogin());
+        clearButton.addActionListener(e -> resetFields());
+
+        updateOtpVisibility();
     }
 
-    public void adminLogin() {
-        JDialog loginPopup = new JDialog(this, "Administrator Login", true);
-        JPanel loginPanel = new JPanel(new GridLayout(0, 2, 5, 5));
-        loginPopup.setSize(300,150);
-        JButton back = new JButton("Back to Main");
-        JButton submit = new JButton("Submit");
-        JTextField adminID = new JTextField();
-        JLabel admin = new JLabel("Administrator ID:");
-        JTextField AdminPass = new JTextField();
-        JLabel pass = new JLabel ("Password:");
-        back.addActionListener(e -> loginPopup.dispose());
-        submit.addActionListener(e-> {dispose(); new AdminDashboard();});
-        loginPanel.add(admin);
-        loginPanel.add(pass);
-        loginPanel.add(adminID);
-        loginPanel.add(AdminPass);
-        loginPanel.add(submit);
-        loginPanel.add(back);
-        loginPopup.add(loginPanel);
-        loginPopup.setVisible(true);
+    public void resetFields() {
+        roleBox.setSelectedIndex(0);
+        idField.setText("");
+        passwordField.setText("");
+        otpField.setText("");
+        updateOtpVisibility();
+    }
+
+    private void updateOtpVisibility() {
+        boolean showOtp = "Administrator".equals(roleBox.getSelectedItem());
+        otpField.setEnabled(showOtp);
+        if (!showOtp) {
+            otpField.setText("");
+        }
+    }
+
+    private void attemptLogin() {
+        String role = (String) roleBox.getSelectedItem();
+        String id = idField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+        String otp = otpField.getText().trim();
+
+        boolean success = false;
+
+        if ("Student".equals(role)) {
+            success = app.loginStudent(id, password);
+        } else if ("Instructor".equals(role)) {
+            success = app.loginInstructor(id, password);
+        } else if ("Administrator".equals(role)) {
+            success = app.loginAdmin(id, password, otp);
+        }
+
+        if (!success) {
+            JOptionPane.showMessageDialog(app, "Invalid login credentials.");
+        }
     }
 }
