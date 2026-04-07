@@ -15,19 +15,11 @@ public class LoginScreen extends JFrame {
         JButton instructorBtn = new JButton("Instructor Login");
         JButton adminBtn = new JButton("Admin Login");
 
-        studentBtn.addActionListener(e -> {
-            studentLogin();
-        });
+        studentBtn.addActionListener(e -> studentLogin());
 
-        instructorBtn.addActionListener(e -> {
-            dispose();
-            new InstructorDashboard();
-        });
+        instructorBtn.addActionListener(e -> instructorLogin());
 
-        adminBtn.addActionListener(e -> {
-            dispose();
-            new AdminDashboard();
-        });
+        adminBtn.addActionListener(e -> adminLogin());
 
         add(title);
         add(studentBtn);
@@ -52,6 +44,50 @@ public class LoginScreen extends JFrame {
         loginPanel.add(pass);
         loginPanel.add(studentID);
         loginPanel.add(studentPass);
+        loginPanel.add(submit);
+        loginPanel.add(back);
+        loginPopup.add(loginPanel);
+        loginPopup.setVisible(true);
+    }
+    
+    public void instructorLogin() {
+        JDialog loginPopup = new JDialog(this, "Instructor Login", true);
+        JPanel loginPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        loginPopup.setSize(300,150);
+        JButton back = new JButton("Back to Main");
+        JButton submit = new JButton("Submit");
+        JTextField instructorID = new JTextField();
+        JLabel instructor = new JLabel("Instructor ID:");
+        JTextField instructorPass = new JTextField();
+        JLabel pass = new JLabel ("Password:");
+        back.addActionListener(e -> loginPopup.dispose());
+        submit.addActionListener(e-> {dispose(); new InstructorDashboard();});
+        loginPanel.add(instructor);
+        loginPanel.add(pass);
+        loginPanel.add(instructorID);
+        loginPanel.add(instructorPass);
+        loginPanel.add(submit);
+        loginPanel.add(back);
+        loginPopup.add(loginPanel);
+        loginPopup.setVisible(true);
+    }
+
+    public void adminLogin() {
+        JDialog loginPopup = new JDialog(this, "Administrator Login", true);
+        JPanel loginPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+        loginPopup.setSize(300,150);
+        JButton back = new JButton("Back to Main");
+        JButton submit = new JButton("Submit");
+        JTextField adminID = new JTextField();
+        JLabel admin = new JLabel("Administrator ID:");
+        JTextField AdminPass = new JTextField();
+        JLabel pass = new JLabel ("Password:");
+        back.addActionListener(e -> loginPopup.dispose());
+        submit.addActionListener(e-> {dispose(); new AdminDashboard();});
+        loginPanel.add(admin);
+        loginPanel.add(pass);
+        loginPanel.add(adminID);
+        loginPanel.add(AdminPass);
         loginPanel.add(submit);
         loginPanel.add(back);
         loginPopup.add(loginPanel);
