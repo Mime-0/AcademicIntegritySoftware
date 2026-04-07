@@ -83,5 +83,5 @@ From the dashboard, you can:
 ---
 
 ## Authors
-- Your Name
-- Group Members
+- Programmed by Jack Maple & Ian Alexander
+- Conceptualized by Ian Alexander, Aareel Baloch, Robin Brar, Simon Choy, Michael Deigin, Mehar Dhillon, Andy Ferrer Lorenzo, Jack Maple, Dang Khanh Nguyen, Ishan Shah 
