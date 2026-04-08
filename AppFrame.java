@@ -1,6 +1,6 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import javax.swing.*;
 
 public class AppFrame extends JFrame {
 
@@ -23,7 +23,7 @@ public class AppFrame extends JFrame {
         this.dataStore = new DataStore();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 650);
+        setSize(1200, 700);
         setLocationRelativeTo(null);
 
         cardLayout = new CardLayout();
@@ -88,22 +88,6 @@ public class AppFrame extends JFrame {
         return false;
     }
 
-    public Student getCurrentStudent() {
-        return currentStudent;
-    }
-
-    public Instructor getCurrentInstructor() {
-        return currentInstructor;
-    }
-
-    public Admin getCurrentAdmin() {
-        return currentAdmin;
-    }
-
-    public List<Student> getStudentsByCourse(String courseCode) {
-        return dataStore.getStudentsByCourse(courseCode);
-    }
-
     public Student getStudentById(String id) {
         return dataStore.getStudentById(id);
     }
@@ -112,7 +96,20 @@ public class AppFrame extends JFrame {
         return dataStore.getInstructorById(id);
     }
 
+    public List<Student> getStudentsByCourse(String courseCode) {
+        return dataStore.getStudentsByCourse(courseCode);
+    }
+
     public List<Instructor> getAllInstructors() {
         return dataStore.getAllInstructors();
+    }
+
+    public List<IncidentReport> getReportsByStudent(String studentId) {
+        return dataStore.getReportsByStudent(studentId);
+    }
+
+    public IncidentReport createReport(String studentId, String instructorId, String course,
+                                       String title, String description) {
+        return dataStore.createReport(studentId, instructorId, course, title, description);
     }
 }

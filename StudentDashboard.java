@@ -1,13 +1,17 @@
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class StudentDashboard extends JPanel {
 
     private final AppFrame app;
+    private final JLabel titleLabel;
     private final JTextArea profileArea;
     private final DefaultListModel<String> notificationModel;
     private final JList<String> notificationList;
+    private final JTextArea reportArea;
+
     private Student currentStudent;
 
     public StudentDashboard(AppFrame app) {
@@ -17,9 +21,9 @@ public class StudentDashboard extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JLabel title = new JLabel("Student Dashboard");
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        add(title, BorderLayout.NORTH);
+        titleLabel = new JLabel("Student Dashboard");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 26));
+        add(titleLabel, BorderLayout.NORTH);
 
         profileArea = new JTextArea();
         profileArea.setEditable(false);
@@ -29,7 +33,12 @@ public class StudentDashboard extends JPanel {
         notificationModel = new DefaultListModel<>();
         notificationList = new JList<>(notificationModel);
 
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 15, 15));
+        reportArea = new JTextArea();
+        reportArea.setEditable(false);
+        reportArea.setLineWrap(true);
+        reportArea.setWrapStyleWord(true);
+
+        JPanel centerPanel = new JPanel(new GridLayout(1, 3, 15, 15));
 
         JPanel profilePanel = new JPanel(new BorderLayout());
         profilePanel.setBorder(BorderFactory.createTitledBorder("Profile"));
@@ -39,8 +48,13 @@ public class StudentDashboard extends JPanel {
         notificationsPanel.setBorder(BorderFactory.createTitledBorder("Notifications"));
         notificationsPanel.add(new JScrollPane(notificationList), BorderLayout.CENTER);
 
+        JPanel reportsPanel = new JPanel(new BorderLayout());
+        reportsPanel.setBorder(BorderFactory.createTitledBorder("Incident Reports"));
+        reportsPanel.add(new JScrollPane(reportArea), BorderLayout.CENTER);
+
         centerPanel.add(profilePanel);
         centerPanel.add(notificationsPanel);
+        centerPanel.add(reportsPanel);
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
@@ -57,6 +71,11 @@ public class StudentDashboard extends JPanel {
 
     public void loadStudent(Student student) {
         this.currentStudent = student;
+        if (student != null) {
+            titleLabel.setText("Student Dashboard - " + student.getStudentName());
+        } else {
+            titleLabel.setText("Student Dashboard");
+        }
         refreshView();
     }
 
@@ -92,6 +111,27 @@ public class StudentDashboard extends JPanel {
             }
             notificationModel.addElement(text);
         }
+
+        StringBuilder reportBuilder = new StringBuilder();
+        List<IncidentReport> reports = app.getReportsByStudent(currentStudent.getStudentId());
+
+        if (reports.isEmpty()) {
+            reportBuilder.append("No incident reports on file.");
+        } else {
+            for (IncidentReport report : reports) {
+                reportBuilder.append("Report ID: ").append(report.getReportId()).append("\n");
+                reportBuilder.append("Course: ").append(report.getCourse()).append("\n");
+                reportBuilder.append("Title: ").append(report.getTitle()).append("\n");
+                reportBuilder.append("Status: ").append(report.getStatus()).append("\n");
+                reportBuilder.append("Description: ").append(report.getDescription()).append("\n");
+                if (!report.getMatchedRules().isEmpty()) {
+                    reportBuilder.append("Matched Rules: ").append(String.join(", ", report.getMatchedRules())).append("\n");
+                }
+                reportBuilder.append("\n--------------------------------------------------\n\n");
+            }
+        }
+
+        reportArea.setText(reportBuilder.toString());
     }
 
     private void acknowledgeSelected() {

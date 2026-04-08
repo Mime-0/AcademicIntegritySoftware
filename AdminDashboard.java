@@ -60,6 +60,7 @@ public class AdminDashboard extends JPanel {
         JPanel bottomPanel = new JPanel();
         JButton savePoliciesButton = new JButton("Save Policies");
         JButton addPersonButton = new JButton("Add New Role");
+        JButton manageRulesButton = new JButton("Manage Rules");
         JButton logoutButton = new JButton("Logout");
 
         savePoliciesButton.addActionListener(e -> {
@@ -68,10 +69,12 @@ public class AdminDashboard extends JPanel {
         });
 
         addPersonButton.addActionListener(e -> newPersonPopup());
+        manageRulesButton.addActionListener(e -> manageRulesPopup());
         logoutButton.addActionListener(e -> app.showLogin());
 
         bottomPanel.add(savePoliciesButton);
         bottomPanel.add(addPersonButton);
+        bottomPanel.add(manageRulesButton);
         bottomPanel.add(logoutButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -192,5 +195,69 @@ public class AdminDashboard extends JPanel {
 
         newPerson.add(form);
         newPerson.setVisible(true);
+    }
+
+    private void manageRulesPopup() {
+        JDialog dialog = new JDialog(this.app, "Manage Rules", true);
+        dialog.setSize(700, 500);
+        dialog.setLocationRelativeTo(this.app);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        DefaultListModel<String> ruleModel = new DefaultListModel<>();
+        JList<String> ruleList = new JList<>(ruleModel);
+
+        for (Rule rule : app.getDataStore().getAllRules()) {
+            ruleModel.addElement(rule.toString());
+        }
+
+        JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
+        JTextField nameField = new JTextField();
+        JTextField keywordField = new JTextField();
+        JTextField actionField = new JTextField();
+
+        form.add(new JLabel("Rule Name:"));
+        form.add(nameField);
+        form.add(new JLabel("Keyword Trigger:"));
+        form.add(keywordField);
+        form.add(new JLabel("Action:"));
+        form.add(actionField);
+
+        JButton addRuleButton = new JButton("Add Rule");
+        JButton closeButton = new JButton("Close");
+        form.add(addRuleButton);
+        form.add(closeButton);
+
+        addRuleButton.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String keyword = keywordField.getText().trim();
+            String action = actionField.getText().trim();
+
+            if (name.isEmpty() || keyword.isEmpty() || action.isEmpty()) {
+                JOptionPane.showMessageDialog(app, "Fill in all rule fields.");
+                return;
+            }
+
+            app.getDataStore().addRule(name, keyword, action);
+            ruleModel.clear();
+            for (Rule rule : app.getDataStore().getAllRules()) {
+                ruleModel.addElement(rule.toString());
+            }
+
+            nameField.setText("");
+            keywordField.setText("");
+            actionField.setText("");
+
+            JOptionPane.showMessageDialog(app, "Rule added.");
+        });
+
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        mainPanel.add(new JScrollPane(ruleList), BorderLayout.CENTER);
+        mainPanel.add(form, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
+        dialog.setVisible(true);
     }
 }

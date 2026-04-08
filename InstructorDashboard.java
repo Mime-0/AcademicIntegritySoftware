@@ -51,7 +51,7 @@ public class InstructorDashboard extends JPanel {
         studentPanel.add(new JScrollPane(studentList), BorderLayout.CENTER);
 
         JPanel detailsPanel = new JPanel(new BorderLayout());
-        detailsPanel.setBorder(BorderFactory.createTitledBorder("Selected Student"));
+        detailsPanel.setBorder(BorderFactory.createTitledBorder("Selected Student + Reports"));
         detailsPanel.add(new JScrollPane(studentDetailsArea), BorderLayout.CENTER);
 
         centerPanel.add(coursePanel);
@@ -61,12 +61,15 @@ public class InstructorDashboard extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
+        JButton createReportButton = new JButton("Create Report");
         JButton refreshButton = new JButton("Refresh");
         JButton logoutButton = new JButton("Logout");
 
+        createReportButton.addActionListener(e -> createReportPopup());
         refreshButton.addActionListener(e -> refreshStudentList());
         logoutButton.addActionListener(e -> app.showLogin());
 
+        bottomPanel.add(createReportButton);
         bottomPanel.add(refreshButton);
         bottomPanel.add(logoutButton);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -160,6 +163,98 @@ public class InstructorDashboard extends JPanel {
             builder.append("\n");
         }
 
+        builder.append("\nReports:\n");
+        List<IncidentReport> reports = app.getReportsByStudent(student.getStudentId());
+        if (reports.isEmpty()) {
+            builder.append("- No reports on file.\n");
+        } else {
+            for (IncidentReport report : reports) {
+                builder.append("--------------------------------------------------\n");
+                builder.append("Report ID: ").append(report.getReportId()).append("\n");
+                builder.append("Course: ").append(report.getCourse()).append("\n");
+                builder.append("Title: ").append(report.getTitle()).append("\n");
+                builder.append("Status: ").append(report.getStatus()).append("\n");
+                builder.append("Description: ").append(report.getDescription()).append("\n");
+                if (!report.getMatchedRules().isEmpty()) {
+                    builder.append("Matched Rules: ").append(String.join(", ", report.getMatchedRules())).append("\n");
+                }
+            }
+        }
+
         studentDetailsArea.setText(builder.toString());
+    }
+
+    private void createReportPopup() {
+        String selectedCourse = courseList.getSelectedValue();
+        String selectedStudent = studentList.getSelectedValue();
+
+        if (currentInstructor == null || selectedCourse == null || selectedStudent == null) {
+            JOptionPane.showMessageDialog(app, "Select a course and a student first.");
+            return;
+        }
+
+        String studentId = selectedStudent.split(" - ")[0];
+
+        JDialog dialog = new JDialog(app, "Create Incident Report", true);
+        dialog.setSize(600, 450);
+        dialog.setLocationRelativeTo(app);
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        JPanel fields = new JPanel(new GridLayout(2, 2, 10, 10));
+        JTextField titleField = new JTextField();
+
+        fields.add(new JLabel("Report Title:"));
+        fields.add(titleField);
+        fields.add(new JLabel("Student:"));
+        fields.add(new JLabel(selectedStudent));
+
+        JTextArea descriptionArea = new JTextArea(10, 40);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+
+        JPanel buttons = new JPanel();
+        JButton submitButton = new JButton("Submit Report");
+        JButton cancelButton = new JButton("Cancel");
+
+        buttons.add(submitButton);
+        buttons.add(cancelButton);
+
+        submitButton.addActionListener(e -> {
+            String title = titleField.getText().trim();
+            String description = descriptionArea.getText().trim();
+
+            if (title.isEmpty() || description.isEmpty()) {
+                JOptionPane.showMessageDialog(app, "Enter both a title and a long-form description.");
+                return;
+            }
+
+            IncidentReport report = app.createReport(
+                    studentId,
+                    currentInstructor.getInstructorId(),
+                    selectedCourse,
+                    title,
+                    description
+            );
+
+            String message = "Report created successfully.";
+            if (!report.getMatchedRules().isEmpty()) {
+                message += "\nMatched rules: " + String.join(", ", report.getMatchedRules());
+            }
+
+            JOptionPane.showMessageDialog(app, message);
+            dialog.dispose();
+            refreshStudentDetails();
+        });
+
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        panel.add(fields, BorderLayout.NORTH);
+        panel.add(new JScrollPane(descriptionArea), BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
     }
 }

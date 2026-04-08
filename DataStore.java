@@ -7,12 +7,19 @@ public class DataStore {
     private final Map<String, Student> students;
     private final Map<String, Instructor> instructors;
     private final Map<String, Admin> admins;
+    private final List<IncidentReport> reports;
+    private final List<Rule> rules;
+
     private String policies;
+    private int nextReportId;
 
     public DataStore() {
         students = new LinkedHashMap<>();
         instructors = new LinkedHashMap<>();
         admins = new LinkedHashMap<>();
+        reports = new ArrayList<>();
+        rules = new ArrayList<>();
+        nextReportId = 1;
         seedData();
     }
 
@@ -61,6 +68,18 @@ public class DataStore {
             "Policy 2: Instructors may flag integrity-related incidents.\n" +
             "Policy 3: Repeated incidents may trigger disciplinary review.\n" +
             "Policy 4: Administrators may update policy references and access rules.";
+
+        rules.add(new Rule("Possible Plagiarism", "plagiarism", "Mark report for review"));
+        rules.add(new Rule("Cheating Mention", "cheating", "Escalate severity"));
+        rules.add(new Rule("Unauthorized AI Use", "ai-generated", "Flag for manual review"));
+
+        createReport("101202303", "I2001", "CP317 A",
+                "Essay Similarity Concern",
+                "The student's essay contains several sections with wording that strongly resembles external sources without proper citation.");
+
+        createReport("303202101", "I2002", "CP220 B",
+                "Pattern Threshold Review",
+                "Multiple irregularities were noticed across submissions. A broader review may be required because the student may have breached a reporting threshold.");
     }
 
     public Student authenticateStudent(String id, String password) {
@@ -118,7 +137,7 @@ public class DataStore {
     public void setPolicies(String policies) {
         this.policies = policies;
     }
-    
+
     public void addStudent(String stId, String pw, String stNm, String em, String enrPgrm) {
         Student s = new Student(stId, pw, stNm, em, enrPgrm, 1);
         students.put(s.getStudentId(), s);
@@ -127,5 +146,57 @@ public class DataStore {
     public void addInstructor(String instId, String pw, String instNm, String em, String dpmt) {
         Instructor i = new Instructor(instId, pw, instNm, em, dpmt);
         instructors.put(i.getInstructorId(), i);
+    }
+
+    public void addRule(String ruleName, String keyword, String action) {
+        rules.add(new Rule(ruleName, keyword, action));
+    }
+
+    public List<Rule> getAllRules() {
+        return rules;
+    }
+
+    public IncidentReport createReport(String studentId, String instructorId, String course,
+                                       String title, String description) {
+        IncidentReport report = new IncidentReport(nextReportId, studentId, instructorId, course, title, description);
+        nextReportId++;
+
+        applyRules(report);
+
+        Student student = students.get(studentId);
+        if (student != null) {
+            String message = "New incident report filed: " + title;
+            if (!report.getMatchedRules().isEmpty()) {
+                message += " | Matched rules: " + String.join(", ", report.getMatchedRules());
+            }
+            student.addNotification(new Notification(1000 + report.getReportId(), message, false, "Report"));
+        }
+
+        reports.add(report);
+        return report;
+    }
+
+    private void applyRules(IncidentReport report) {
+        String combined = (report.getTitle() + " " + report.getDescription()).toLowerCase();
+
+        for (Rule rule : rules) {
+            if (combined.contains(rule.getKeyword().toLowerCase())) {
+                report.addMatchedRule(rule.getRuleName() + " (" + rule.getAction() + ")");
+            }
+        }
+
+        if (!report.getMatchedRules().isEmpty()) {
+            report.setStatus("Flagged by Rule");
+        }
+    }
+
+    public List<IncidentReport> getReportsByStudent(String studentId) {
+        List<IncidentReport> result = new ArrayList<>();
+        for (IncidentReport report : reports) {
+            if (report.getStudentId().equals(studentId)) {
+                result.add(report);
+            }
+        }
+        return result;
     }
 }
