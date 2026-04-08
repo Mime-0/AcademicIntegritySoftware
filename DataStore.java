@@ -22,20 +22,20 @@ public class DataStore {
         Course uu150 = new Course("UU150", "Foundations", "Winter 2026", 'A');
 
         Student s1 = new Student("101202303", "pass123", "Scott Pilgrim", "pilg2303@mylaurier.ca", "Computer Science", 6);
-        s1.addCourse(cp317.getCourseCode());
-        s1.addCourse(uu150.getCourseCode());
+        s1.addCourse(cp317.getCourseCode(), cp317.getSection());
+        s1.addCourse(uu150.getCourseCode(), uu150.getSection());
         s1.addDocument("Essay 1 Submission");
         s1.addDocument("Lab Report 2");
         s1.addNotification(new Notification(1, "Possible plagiarism detected in Essay 1.", false, "Incident"));
         s1.addNotification(new Notification(2, "Meeting requested by instructor.", false, "Follow-up"));
 
         Student s2 = new Student("202101303", "pass123", "Matthew Patel", "pate2303@mylaurier.ca", "Computer Science", 2);
-        s2.addCourse(cp317.getCourseCode());
+        s2.addCourse(cp317.getCourseCode(), cp317.getSection());
         s2.addDocument("Assignment 3 Submission");
         s2.addNotification(new Notification(3, "No new alerts.", true, "Info"));
 
         Student s3 = new Student("303202101", "pass123", "Ramona Flowers", "flow2101@mylaurier.ca", "Math", 8);
-        s3.addCourse(cp220.getCourseCode());
+        s3.addCourse(cp220.getCourseCode(), cp220.getSection());
         s3.addDocument("Final Project Draft");
         s3.addNotification(new Notification(4, "Repeat integrity pattern threshold reached.", false, "Threshold"));
 

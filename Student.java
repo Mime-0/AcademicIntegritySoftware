@@ -69,7 +69,7 @@ public class Student {
         notifications.add(notification);
     }
 
-    public void addCourse(String courseCode) {
-        courses.add(courseCode);
+    public void addCourse(String courseCode, char courseSection) {
+        courses.add(courseCode + " " + courseSection);
     }
 }
