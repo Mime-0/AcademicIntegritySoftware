@@ -118,4 +118,14 @@ public class DataStore {
     public void setPolicies(String policies) {
         this.policies = policies;
     }
+    
+    public void addStudent(String stId, String pw, String stNm, String em, String enrPgrm) {
+        Student s = new Student(stId, pw, stNm, em, enrPgrm, 1);
+        students.put(s.getStudentId(), s);
+    }
+
+    public void addInstructor(String instId, String pw, String instNm, String em, String dpmt) {
+        Instructor i = new Instructor(instId, pw, instNm, em, dpmt);
+        instructors.put(i.getInstructorId(), i);
+    }
 }
