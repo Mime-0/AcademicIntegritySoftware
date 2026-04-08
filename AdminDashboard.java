@@ -6,6 +6,7 @@ public class AdminDashboard extends JPanel {
 
     private final AppFrame app;
 
+    private final JLabel titleLabel;
     private final DefaultListModel<String> instructorModel;
     private final JList<String> instructorList;
     private final JTextArea instructorArea;
@@ -20,15 +21,17 @@ public class AdminDashboard extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JLabel title = new JLabel("Administrator Dashboard");
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        add(title, BorderLayout.NORTH);
+        titleLabel = new JLabel("Administrator Dashboard");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 26));
+        add(titleLabel, BorderLayout.NORTH);
 
         instructorModel = new DefaultListModel<>();
         instructorList = new JList<>(instructorModel);
 
         instructorArea = new JTextArea();
         instructorArea.setEditable(false);
+        instructorArea.setLineWrap(true);
+        instructorArea.setWrapStyleWord(true);
 
         policyArea = new JTextArea();
         policyArea.setLineWrap(true);
@@ -56,20 +59,19 @@ public class AdminDashboard extends JPanel {
 
         JPanel bottomPanel = new JPanel();
         JButton savePoliciesButton = new JButton("Save Policies");
+        JButton addPersonButton = new JButton("Add New Role");
         JButton logoutButton = new JButton("Logout");
-        JButton addPerson = new JButton("Add New Role");
 
         savePoliciesButton.addActionListener(e -> {
             app.getDataStore().setPolicies(policyArea.getText());
             JOptionPane.showMessageDialog(app, "Policies updated.");
         });
 
+        addPersonButton.addActionListener(e -> newPersonPopup());
         logoutButton.addActionListener(e -> app.showLogin());
 
-        addPerson.addActionListener(e -> newPersonPopup());
-
         bottomPanel.add(savePoliciesButton);
-        bottomPanel.add(addPerson);
+        bottomPanel.add(addPersonButton);
         bottomPanel.add(logoutButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -82,13 +84,19 @@ public class AdminDashboard extends JPanel {
 
     public void loadAdmin(Admin admin) {
         this.currentAdmin = admin;
-        JLabel title = new JLabel("Administrator Dashboard - " + currentAdmin.getAdminName());
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        add(title, BorderLayout.NORTH);
-        instructorModel.clear();
+        if (currentAdmin != null) {
+            titleLabel.setText("Administrator Dashboard - " + currentAdmin.getAdminName());
+        } else {
+            titleLabel.setText("Administrator Dashboard");
+        }
+
         instructorArea.setText("");
         policyArea.setText(app.getDataStore().getPolicies());
+        refreshInstructorList();
+    }
 
+    private void refreshInstructorList() {
+        instructorModel.clear();
         for (Instructor instructor : app.getAllInstructors()) {
             instructorModel.addElement(instructor.getInstructorId() + " - " + instructor.getInstructorName());
         }
@@ -122,16 +130,22 @@ public class AdminDashboard extends JPanel {
 
         instructorArea.setText(builder.toString());
     }
+
     private void newPersonPopup() {
         JDialog newPerson = new JDialog(this.app, "Add New Person", true);
+        newPerson.setSize(600, 400);
+        newPerson.setLocationRelativeTo(this.app);
+
         JPanel form = new JPanel(new GridLayout(7, 2, 10, 10));
-        newPerson.setSize(600, 800);
+        form.setBorder(new EmptyBorder(15, 15, 15, 15));
+
         JComboBox<String> roleBox = new JComboBox<>(new String[] {"Student", "Instructor"});
         JTextField idField = new JTextField();
         JTextField passwordField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField emailField = new JTextField();
         JTextField programField = new JTextField();
+
         form.add(new JLabel("Role:"));
         form.add(roleBox);
         form.add(new JLabel("Personnel ID:"));
@@ -142,29 +156,38 @@ public class AdminDashboard extends JPanel {
         form.add(nameField);
         form.add(new JLabel("Email:"));
         form.add(emailField);
-        form.add(new JLabel("<html>Enrolled Program (For Students):<br>Department (For Instructors):</html>"));
+        form.add(new JLabel("<html>Enrolled Program (Student)<br>Department (Instructor)</html>"));
         form.add(programField);
 
         JButton createButton = new JButton("Create Person");
         JButton closeButton = new JButton("Close");
         form.add(createButton);
         form.add(closeButton);
+
         closeButton.addActionListener(e -> newPerson.dispose());
+
         createButton.addActionListener(e -> {
-            String id = idField.getText();
-            String pass = passwordField.getText();
-            String name = nameField.getText();
-            String email = emailField.getText();
-            String pgm = programField.getText();
-            if ((String) roleBox.getSelectedItem() == "Student") {
+            String id = idField.getText().trim();
+            String pass = passwordField.getText().trim();
+            String name = nameField.getText().trim();
+            String email = emailField.getText().trim();
+            String pgm = programField.getText().trim();
+
+            if (id.isEmpty() || pass.isEmpty() || name.isEmpty() || email.isEmpty() || pgm.isEmpty()) {
+                JOptionPane.showMessageDialog(app, "Please fill in all fields.");
+                return;
+            }
+
+            if ("Student".equals((String) roleBox.getSelectedItem())) {
                 app.getDataStore().addStudent(id, pass, name, email, pgm);
-                JOptionPane.showMessageDialog(app, "Successfully Created Student.");
-                newPerson.dispose();
+                JOptionPane.showMessageDialog(app, "Successfully created student.");
             } else {
                 app.getDataStore().addInstructor(id, pass, name, email, pgm);
-                JOptionPane.showMessageDialog(app, "Successfully Created Instructor.");
-                newPerson.dispose();
+                JOptionPane.showMessageDialog(app, "Successfully created instructor.");
             }
+
+            refreshInstructorList();
+            newPerson.dispose();
         });
 
         newPerson.add(form);

@@ -7,6 +7,7 @@ public class InstructorDashboard extends JPanel {
 
     private final AppFrame app;
 
+    private final JLabel titleLabel;
     private final DefaultListModel<String> courseModel;
     private final JList<String> courseList;
 
@@ -24,9 +25,9 @@ public class InstructorDashboard extends JPanel {
         setLayout(new BorderLayout(15, 15));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JLabel title = new JLabel("Instructor Dashboard");
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        add(title, BorderLayout.NORTH);
+        titleLabel = new JLabel("Instructor Dashboard");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 26));
+        add(titleLabel, BorderLayout.NORTH);
 
         courseModel = new DefaultListModel<>();
         courseList = new JList<>(courseModel);
@@ -85,9 +86,12 @@ public class InstructorDashboard extends JPanel {
 
     public void loadInstructor(Instructor instructor) {
         this.currentInstructor = instructor;
-        JLabel title = new JLabel("Instructor Dashboard - " + currentInstructor.getInstructorName());
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        add(title, BorderLayout.NORTH);
+
+        if (currentInstructor != null) {
+            titleLabel.setText("Instructor Dashboard - " + currentInstructor.getInstructorName());
+        } else {
+            titleLabel.setText("Instructor Dashboard");
+        }
 
         courseModel.clear();
         studentModel.clear();
@@ -137,7 +141,12 @@ public class InstructorDashboard extends JPanel {
         builder.append("Program: ").append(student.getEnrolledProgram()).append("\n");
         builder.append("Integrity Status: ").append(student.getIntegrityStatus()).append("/10").append("\n\n");
 
-        builder.append("Documents:\n");
+        builder.append("Courses:\n");
+        for (String course : student.getCourses()) {
+            builder.append("- ").append(course).append("\n");
+        }
+
+        builder.append("\nDocuments:\n");
         for (String doc : student.getDocuments()) {
             builder.append("- ").append(doc).append("\n");
         }
