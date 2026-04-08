@@ -52,7 +52,6 @@ public class LoginScreen extends JPanel {
     }
 
     public void resetFields() {
-        roleBox.setSelectedIndex(0);
         idField.setText("");
         passwordField.setText("");
         otpField.setText("");

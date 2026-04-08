@@ -85,6 +85,10 @@ public class InstructorDashboard extends JPanel {
 
     public void loadInstructor(Instructor instructor) {
         this.currentInstructor = instructor;
+        JLabel title = new JLabel("Instructor Dashboard - " + currentInstructor.getInstructorName());
+        title.setFont(new Font("SansSerif", Font.BOLD, 26));
+        add(title, BorderLayout.NORTH);
+
         courseModel.clear();
         studentModel.clear();
         studentDetailsArea.setText("");

@@ -78,6 +78,9 @@ public class AdminDashboard extends JPanel {
 
     public void loadAdmin(Admin admin) {
         this.currentAdmin = admin;
+        JLabel title = new JLabel("Administrator Dashboard - " + currentAdmin.getAdminName());
+        title.setFont(new Font("SansSerif", Font.BOLD, 26));
+        add(title, BorderLayout.NORTH);
         instructorModel.clear();
         instructorArea.setText("");
         policyArea.setText(app.getDataStore().getPolicies());
