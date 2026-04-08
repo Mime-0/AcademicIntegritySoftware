@@ -2,9 +2,9 @@ public class Course {
     private final String courseCode;
     private final String courseName;
     private final String term;
-    private final String section;
+    private final char section;
 
-    public Course(String courseCode, String courseName, String term, String section) {
+    public Course(String courseCode, String courseName, String term, char section) {
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.term = term;
@@ -23,7 +23,7 @@ public class Course {
         return term;
     }
 
-    public String getSection() {
+    public char getSection() {
         return section;
     }
 }

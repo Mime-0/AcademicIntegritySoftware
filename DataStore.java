@@ -17,9 +17,9 @@ public class DataStore {
     }
 
     private void seedData() {
-        Course cp317 = new Course("CP317", "Software Engineering", "Winter 2026", "A");
-        Course cp220 = new Course("CP220", "Data Structures", "Winter 2026", "B");
-        Course uu150 = new Course("UU150", "Foundations", "Winter 2026", "A");
+        Course cp317 = new Course("CP317", "Software Engineering", "Winter 2026", 'A');
+        Course cp220 = new Course("CP220", "Data Structures", "Winter 2026", 'B');
+        Course uu150 = new Course("UU150", "Foundations", "Winter 2026", 'A');
 
         Student s1 = new Student("101202303", "pass123", "Scott Pilgrim", "pilg2303@mylaurier.ca", "Computer Science", 6);
         s1.addCourse(cp317.getCourseCode());
@@ -44,11 +44,11 @@ public class DataStore {
         students.put(s3.getStudentId(), s3);
 
         Instructor i1 = new Instructor("I2001", "teach123", "Dr. Schlatt", "schlatt@mylaurier.ca", "Computer Science");
-        i1.addCourse(cp317.getCourseCode());
-        i1.addCourse(uu150.getCourseCode());
+        i1.addCourse(cp317.getCourseCode(), cp317.getSection());
+        i1.addCourse(uu150.getCourseCode(), uu150.getSection());
 
         Instructor i2 = new Instructor("I2002", "teach123", "Prof. Chiu", "chiu@mylaurier.ca", "Computer Science");
-        i2.addCourse(cp220.getCourseCode());
+        i2.addCourse(cp220.getCourseCode(), cp220.getSection());
 
         instructors.put(i1.getInstructorId(), i1);
         instructors.put(i2.getInstructorId(), i2);
